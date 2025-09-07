@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://rkmatrial26-lang.github.io/image-expander-ai/sitemap.xml
