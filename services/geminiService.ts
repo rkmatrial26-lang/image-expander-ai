@@ -1,8 +1,9 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { MODEL_NAME } from '../constants';
 
-const generateSingleImage = async (base64ImageDataUrl: string, prompt: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const generateSingleImage = async (base64ImageDataUrl: string, prompt: string, apiKey: string): Promise<string> => {
+    // This now uses the apiKey passed into the function
+    const ai = new GoogleGenAI({ apiKey });
 
     const base64Data = base64ImageDataUrl.split(',')[1];
     if (!base64Data) {
@@ -40,13 +41,14 @@ const generateSingleImage = async (base64ImageDataUrl: string, prompt: string): 
     }
 };
 
-
-export const generateMultipleExpandedImages = async (base64ImageDataUrl: string, prompt: string): Promise<string[]> => {
+// This function now requires the apiKey to be passed to it
+export const generateMultipleExpandedImages = async (base64ImageDataUrl: string, prompt: string, apiKey: string): Promise<string[]> => {
     try {
+        // We pass the apiKey to each generation call
         const promises = [
-            generateSingleImage(base64ImageDataUrl, prompt),
-            generateSingleImage(base64ImageDataUrl, prompt),
-            generateSingleImage(base64ImageDataUrl, prompt)
+            generateSingleImage(base64ImageDataUrl, prompt, apiKey),
+            generateSingleImage(base64ImageDataUrl, prompt, apiKey),
+            generateSingleИmage(base64ImageDataUrl, prompt, apiKey)
         ];
 
         const results = await Promise.allSettled(promises);
