@@ -6,7 +6,6 @@ import ImageEditor from './components/ImageEditor';
 import ResultView from './components/ResultView';
 import ThemeToggle from './components/ThemeToggle';
 import ApiKeyModal from './components/ApiKeyModal'; // Import the modal
-import { GoogleGenAI } from '@google/genai';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('idle');
@@ -20,8 +19,6 @@ const App: React.FC = () => {
   // State for API Key management
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
-  const [isVerifyingKey, setIsVerifyingKey] = useState<boolean>(false);
-  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -65,7 +62,7 @@ const App: React.FC = () => {
       const resultsBase64 = await generateMultipleExpandedImages(compositeImageBase64, prompt, key);
       
       if(resultsBase64.length === 0) {
-        throw new Error("The model was unable to generate images. This can happen if the image is too complex or lacks sufficient context for expansion. Please try a different image.");
+        throw new Error("The model was unable to generate images. Please try a different image.");
       }
 
       setGeneratedImages(resultsBase64.map(base64 => `data:image/png;base64,${base64}`));
@@ -73,37 +70,22 @@ const App: React.FC = () => {
       
     } catch (err) {
       console.error(err);
+      // This will now catch an invalid API key error during the actual generation attempt
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      setError(`Failed to generate image. ${errorMessage}`);
+      setError(`Failed to generate image. Please check your API Key and network connection. Error: ${errorMessage}`);
       setAppState('editing');
     } finally {
       setIsLoading(false);
     }
   }, [originalImage]);
   
-  // This function will be called when the user submits their API key
-  const handleApiKeySubmit = async (submittedKey: string) => {
-    setApiKeyError(null);
-    setIsVerifyingKey(true);
-    try {
-      // Test the key by making a simple, non-image request
-      const ai = new GoogleGenAI({ apiKey: submittedKey });
-      await ai.models.generateContent({
-        model: 'gemini-pro',
-        contents: { parts: [{ text: "hello" }] }
-      });
-      // If it succeeds, set the key and close the modal
-      setApiKey(submittedKey);
-      setIsApiKeyModalOpen(false);
-      // If there's a pending generation, run it now
-      if (lastGenerationParams) {
-        executeGeneration(lastGenerationParams.compositeImageBase64, submittedKey);
-      }
-    } catch (err) {
-      console.error("API Key validation failed", err);
-      setApiKeyError("Invalid API Key. Please check your key and try again.");
-    } finally {
-      setIsVerifyingKey(false);
+  // This function is now much simpler. It doesn't verify the key, it just uses it.
+  const handleApiKeySubmit = (submittedKey: string) => {
+    setApiKey(submittedKey);
+    setIsApiKeyModalOpen(false);
+    // If there's a pending generation, run it now with the new key
+    if (lastGenerationParams) {
+      executeGeneration(lastGenerationParams.compositeImageBase64, submittedKey);
     }
   };
 
@@ -142,10 +124,10 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
       <ApiKeyModal
         isOpen={isApiKeyModalOpen}
-        isVerifying={isVerifyingKey}
+        isVerifying={false} // This is no longer needed
         onClose={() => setIsApiKeyModalOpen(false)}
         onSubmit={handleApiKeySubmit}
-        error={apiKeyError}
+        error={null} // This is no longer needed
       />
       <header className="p-4 flex justify-between items-center fixed top-0 left-0 right-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md z-10 border-b border-gray-200 dark:border-gray-800">
         <h1 className="text-xl font-bold text-primary-500 dark:text-primary-400">AI Image Expander</h1>
