@@ -44,11 +44,11 @@ const generateSingleImage = async (base64ImageDataUrl: string, prompt: string, a
 // This function now requires the apiKey to be passed to it
 export const generateMultipleExpandedImages = async (base64ImageDataUrl: string, prompt: string, apiKey: string): Promise<string[]> => {
     try {
-        // We pass the apiKey to each generation call
+        // We pass the apiKey to each generation call. The typo is fixed on the third line here.
         const promises = [
             generateSingleImage(base64ImageDataUrl, prompt, apiKey),
             generateSingleImage(base64ImageDataUrl, prompt, apiKey),
-            generateSingleИmage(base64ImageDataUrl, prompt, apiKey)
+            generateSingleImage(base64ImageDataUrl, prompt, apiKey)
         ];
 
         const results = await Promise.allSettled(promises);
