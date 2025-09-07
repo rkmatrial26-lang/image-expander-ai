@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Copy of AI Image Expander",
+  "description": "An application that uses generative AI to expand the background of an image, seamlessly filling the new space to match the original. Users can upload an image, select a new aspect ratio, and download the expanded result.",
+  "requestFramePermissions": []
+}
