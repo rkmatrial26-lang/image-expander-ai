@@ -5,10 +5,15 @@ import ImageUploader from './components/ImageUploader';
 import ImageEditor from './components/ImageEditor';
 import ResultView from './components/ResultView';
 import ThemeToggle from './components/ThemeToggle';
-import ApiKeyModal from './components/ApiKeyModal'; // Import the modal
+import ApiKeyModal from './components/ApiKeyModal';
+import AboutUs from './components/AboutUs'; // Import the new component
+import ContactUs from './components/ContactUs'; // Import the new component
+
+type Page = 'app' | 'about' | 'contact';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('idle');
+  const [currentPage, setCurrentPage] = useState<Page>('app'); // State for navigation
   const [originalImage, setOriginalImage] = useState<OriginalImage | null>(null);
   const [generatedImages, setGeneratedImages] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +21,6 @@ const App: React.FC = () => {
   const [lastGenerationParams, setLastGenerationParams] = useState<{ compositeImageBase64: string } | null>(null);
   const [theme, setTheme] = useState<Theme>('dark');
   
-  // State for API Key management
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
 
@@ -37,10 +41,8 @@ const App: React.FC = () => {
   
   const handleGenerationRequest = (compositeImageBase64: string) => {
     setError(null);
-    // Check for API key before generating
     if (!apiKey) {
       setIsApiKeyModalOpen(true);
-      // Store the image data to be used after key is entered
       setLastGenerationParams({ compositeImageBase64 }); 
     } else {
       executeGeneration(compositeImageBase64, apiKey);
@@ -58,7 +60,6 @@ const App: React.FC = () => {
     try {
       const prompt = `Expand this image by filling in the transparent areas. The new content should blend seamlessly with the original image in terms of style, lighting, and subject matter. Create a photorealistic and coherent extension of the scene.`;
       
-      // Pass the key to the service function
       const resultsBase64 = await generateMultipleExpandedImages(compositeImageBase64, prompt, key);
       
       if(resultsBase64.length === 0) {
@@ -70,7 +71,6 @@ const App: React.FC = () => {
       
     } catch (err) {
       console.error(err);
-      // This will now catch an invalid API key error during the actual generation attempt
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(`Failed to generate image. Please check your API Key and network connection. Error: ${errorMessage}`);
       setAppState('editing');
@@ -79,11 +79,9 @@ const App: React.FC = () => {
     }
   }, [originalImage]);
   
-  // This function is now much simpler. It doesn't verify the key, it just uses it.
   const handleApiKeySubmit = (submittedKey: string) => {
     setApiKey(submittedKey);
     setIsApiKeyModalOpen(false);
-    // If there's a pending generation, run it now with the new key
     if (lastGenerationParams) {
       executeGeneration(lastGenerationParams.compositeImageBase64, submittedKey);
     }
@@ -105,9 +103,21 @@ const App: React.FC = () => {
     setAppState('idle');
     setIsLoading(false);
     setLastGenerationParams(null);
+    setCurrentPage('app'); // Go back to the main app
+  };
+  
+  const navigateTo = (page: Page) => {
+    setCurrentPage(page);
   };
 
   const renderContent = () => {
+    if (currentPage === 'about') {
+        return <AboutUs onBack={() => navigateTo('app')} />;
+    }
+    if (currentPage === 'contact') {
+        return <ContactUs onBack={() => navigateTo('app')} />;
+    }
+    
     switch (appState) {
       case 'editing':
       case 'generating':
@@ -124,14 +134,20 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
       <ApiKeyModal
         isOpen={isApiKeyModalOpen}
-        isVerifying={false} // This is no longer needed
+        isVerifying={false}
         onClose={() => setIsApiKeyModalOpen(false)}
         onSubmit={handleApiKeySubmit}
-        error={null} // This is no longer needed
+        error={null}
       />
       <header className="p-4 flex justify-between items-center fixed top-0 left-0 right-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md z-10 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-xl font-bold text-primary-500 dark:text-primary-400">AI Image Expander</h1>
-        <ThemeToggle theme={theme} setTheme={setTheme} />
+        <h1 className="text-xl font-bold text-primary-500 dark:text-primary-400 cursor-pointer" onClick={() => navigateTo('app')}>AI Image Expander</h1>
+        <div className="flex items-center gap-4">
+            <nav className="flex items-center gap-4 text-sm font-medium">
+                <button onClick={() => navigateTo('about')} className="text-gray-600 dark:text-gray-300 hover:text-primary-500">About</button>
+                <button onClick={() => navigateTo('contact')} className="text-gray-600 dark:text-gray-300 hover:text-primary-500">Contact</button>
+            </nav>
+            <ThemeToggle theme={theme} setTheme={setTheme} />
+        </div>
       </header>
       <main className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
         <div className="w-full max-w-7xl mx-auto transition-all duration-500">
