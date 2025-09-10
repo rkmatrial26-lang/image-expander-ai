@@ -16,7 +16,7 @@ const ContactUs: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <li><a href="https://x.com/CodeByRushi" target="_blank" rel="noopener noreferrer" className="text-primary-500 hover:underline">X (Twitter): @CodeByRushi</a></li>
         </ul>
          <p className="pt-4">
-          For business inquiries, you can also reach out via email at: <a href="mailto:your.email@example.com" className="text-primary-500 hover:underline">your.email@example.com</a>
+          For business inquiries, you can also reach out via email at: <a href="mailto:codebyrushi@gmail.com" className="text-primary-500 hover:underline">codebyrushi@gmail.com</a>
         </p>
         <p>
             We appreciate your interest in AI Image Expander and look forward to hearing from you!
