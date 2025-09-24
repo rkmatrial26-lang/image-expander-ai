@@ -6,8 +6,13 @@ import ImageEditor from './components/ImageEditor';
 import ResultView from './components/ResultView';
 import ThemeToggle from './components/ThemeToggle';
 import ApiKeyModal from './components/ApiKeyModal';
-import AboutUs from './components/AboutUs'; // Import the new component
-import ContactUs from './components/ContactUs'; // Import the new component
+import AboutUs from './components/AboutUs';
+import ContactUs from './components/ContactUs';
+import HowItWorks from './components/HowItWorks';
+import Features from './components/Features';
+import FAQ from './components/FAQ';
+import AdComponent from './components/AdComponent';
+
 
 type Page = 'app' | 'about' | 'contact';
 
@@ -108,6 +113,7 @@ const App: React.FC = () => {
   
   const navigateTo = (page: Page) => {
     setCurrentPage(page);
+    setAppState('idle');
   };
 
   const renderContent = () => {
@@ -126,7 +132,16 @@ const App: React.FC = () => {
         return generatedImages && originalImage && <ResultView generatedImageSrcs={generatedImages} onReset={handleReset} onRegenerate={handleRegenerate} originalFileName={originalImage.file.name}/>;
       case 'idle':
       default:
-        return <ImageUploader onImageUpload={handleImageUpload} />;
+        return (
+          <>
+            <ImageUploader onImageUpload={handleImageUpload} />
+            <AdComponent />
+            <HowItWorks />
+            <Features />
+            <FAQ />
+            <AdComponent />
+          </>
+        )
     }
   };
 
