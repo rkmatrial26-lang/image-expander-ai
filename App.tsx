@@ -13,6 +13,7 @@ import Features from './components/Features';
 import FAQ from './components/FAQ';
 import AdComponent from './components/AdComponent';
 import HeroSection from './components/HeroSection';
+import AnimatedBackground from './components/AnimatedBackground'; // Import the new component
 
 type Page = 'app' | 'about' | 'contact';
 
@@ -156,9 +157,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="gradient-bg"></div>
-      <div className="content-wrapper min-h-screen bg-transparent text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <div className="relative min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+      <AnimatedBackground />
+      <div className="relative z-10">
         <ApiKeyModal
           isOpen={isApiKeyModalOpen}
           isVerifying={false}
@@ -166,7 +167,7 @@ const App: React.FC = () => {
           onSubmit={handleApiKeySubmit}
           error={null}
         />
-        <header className="p-4 flex justify-between items-center fixed top-0 left-0 right-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md z-10 border-b border-gray-200 dark:border-gray-800">
+        <header className="p-4 flex justify-between items-center fixed top-0 left-0 right-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md z-20 border-b border-gray-200 dark:border-gray-800">
           <h1 className="text-xl font-bold text-primary-500 dark:text-primary-400 cursor-pointer" onClick={() => navigateTo('app')}>AI Image Expander</h1>
           <div className="flex items-center gap-4">
               <nav className="flex items-center gap-4 text-sm font-medium">
@@ -182,7 +183,7 @@ const App: React.FC = () => {
           </div>
         </main>
       </div>
-    </>
+    </div>
   );
 };
 
