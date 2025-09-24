@@ -13,7 +13,9 @@ import Features from './components/Features';
 import FAQ from './components/FAQ';
 import AdComponent from './components/AdComponent';
 import HeroSection from './components/HeroSection';
-import AnimatedBackground from './components/AnimatedBackground'; // Import the new component
+import AnimatedBackground from './components/AnimatedBackground';
+import Stats from './components/Stats'; // Import the new component
+import Footer from './components/Footer'; // Import the new component
 
 type Page = 'app' | 'about' | 'contact';
 
@@ -150,6 +152,7 @@ const App: React.FC = () => {
             <HowItWorks />
             <Features />
             <FAQ />
+            <Stats />
             <AdComponent />
           </>
         )
@@ -157,9 +160,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <div className="relative min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 flex flex-col">
       <AnimatedBackground />
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col flex-grow">
         <ApiKeyModal
           isOpen={isApiKeyModalOpen}
           isVerifying={false}
@@ -177,11 +180,12 @@ const App: React.FC = () => {
               <ThemeToggle theme={theme} setTheme={setTheme} />
           </div>
         </header>
-        <main className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
+        <main className="flex-grow flex items-center justify-center p-4 pt-20 pb-24">
           <div className="w-full max-w-7xl mx-auto transition-all duration-500">
             {renderContent()}
           </div>
         </main>
+        <Footer onNavigate={navigateTo} />
       </div>
     </div>
   );
