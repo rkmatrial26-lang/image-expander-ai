@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { AppState, OriginalImage, Theme } from './types';
 import { generateMultipleExpandedImages } from './services/geminiService';
 import ImageUploader from './components/ImageUploader';
@@ -12,22 +12,23 @@ import HowItWorks from './components/HowItWorks';
 import Features from './components/Features';
 import FAQ from './components/FAQ';
 import AdComponent from './components/AdComponent';
-
+import HeroSection from './components/HeroSection';
 
 type Page = 'app' | 'about' | 'contact';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('idle');
-  const [currentPage, setCurrentPage] = useState<Page>('app'); // State for navigation
+  const [currentPage, setCurrentPage] = useState<Page>('app');
   const [originalImage, setOriginalImage] = useState<OriginalImage | null>(null);
   const [generatedImages, setGeneratedImages] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [lastGenerationParams, setLastGenerationParams] = useState<{ compositeImageBase64: string } | null>(null);
   const [theme, setTheme] = useState<Theme>('dark');
-  
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
+  
+  const uploaderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -43,12 +44,12 @@ const App: React.FC = () => {
     setError(null);
     setGeneratedImages(null);
   };
-  
+
   const handleGenerationRequest = (compositeImageBase64: string) => {
     setError(null);
     if (!apiKey) {
       setIsApiKeyModalOpen(true);
-      setLastGenerationParams({ compositeImageBase64 }); 
+      setLastGenerationParams({ compositeImageBase64 });
     } else {
       executeGeneration(compositeImageBase64, apiKey);
     }
@@ -108,12 +109,18 @@ const App: React.FC = () => {
     setAppState('idle');
     setIsLoading(false);
     setLastGenerationParams(null);
-    setCurrentPage('app'); // Go back to the main app
+    setCurrentPage('app');
   };
   
   const navigateTo = (page: Page) => {
     setCurrentPage(page);
     setAppState('idle');
+  };
+  
+  const handleGetStarted = () => {
+    if (uploaderRef.current) {
+      uploaderRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const renderContent = () => {
@@ -134,7 +141,10 @@ const App: React.FC = () => {
       default:
         return (
           <>
-            <ImageUploader onImageUpload={handleImageUpload} />
+            <HeroSection onGetStarted={handleGetStarted} />
+            <div ref={uploaderRef} className="pt-20">
+              <ImageUploader onImageUpload={handleImageUpload} />
+            </div>
             <AdComponent />
             <HowItWorks />
             <Features />
@@ -146,30 +156,33 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
-      <ApiKeyModal
-        isOpen={isApiKeyModalOpen}
-        isVerifying={false}
-        onClose={() => setIsApiKeyModalOpen(false)}
-        onSubmit={handleApiKeySubmit}
-        error={null}
-      />
-      <header className="p-4 flex justify-between items-center fixed top-0 left-0 right-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md z-10 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-xl font-bold text-primary-500 dark:text-primary-400 cursor-pointer" onClick={() => navigateTo('app')}>AI Image Expander</h1>
-        <div className="flex items-center gap-4">
-            <nav className="flex items-center gap-4 text-sm font-medium">
-                <button onClick={() => navigateTo('about')} className="text-gray-600 dark:text-gray-300 hover:text-primary-500">About</button>
-                <button onClick={() => navigateTo('contact')} className="text-gray-600 dark:text-gray-300 hover:text-primary-500">Contact</button>
-            </nav>
-            <ThemeToggle theme={theme} setTheme={setTheme} />
-        </div>
-      </header>
-      <main className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
-        <div className="w-full max-w-7xl mx-auto transition-all duration-500">
-          {renderContent()}
-        </div>
-      </main>
-    </div>
+    <>
+      <div className="gradient-bg"></div>
+      <div className="content-wrapper min-h-screen bg-transparent text-gray-800 dark:text-gray-200 transition-colors duration-300">
+        <ApiKeyModal
+          isOpen={isApiKeyModalOpen}
+          isVerifying={false}
+          onClose={() => setIsApiKeyModalOpen(false)}
+          onSubmit={handleApiKeySubmit}
+          error={null}
+        />
+        <header className="p-4 flex justify-between items-center fixed top-0 left-0 right-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md z-10 border-b border-gray-200 dark:border-gray-800">
+          <h1 className="text-xl font-bold text-primary-500 dark:text-primary-400 cursor-pointer" onClick={() => navigateTo('app')}>AI Image Expander</h1>
+          <div className="flex items-center gap-4">
+              <nav className="flex items-center gap-4 text-sm font-medium">
+                  <button onClick={() => navigateTo('about')} className="text-gray-600 dark:text-gray-300 hover:text-primary-500">About</button>
+                  <button onClick={() => navigateTo('contact')} className="text-gray-600 dark:text-gray-300 hover:text-primary-500">Contact</button>
+              </nav>
+              <ThemeToggle theme={theme} setTheme={setTheme} />
+          </div>
+        </header>
+        <main className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
+          <div className="w-full max-w-7xl mx-auto transition-all duration-500">
+            {renderContent()}
+          </div>
+        </main>
+      </div>
+    </>
   );
 };
 
